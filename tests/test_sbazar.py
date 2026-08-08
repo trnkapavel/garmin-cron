@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from scrapers.sbazar import _extract_price, _parse_listings, fetch_sbazar
+from scrapers.sbazar import HEADERS, _extract_price, _parse_listings, fetch_sbazar
 
 FIXTURE = Path(__file__).parent / "fixtures" / "sbazar_sample.html"
 
@@ -36,6 +36,7 @@ def test_fetch_sbazar_requests_search_url_with_timeout(monkeypatch):
 
     def fake_get(url, headers=None, timeout=None):
         captured["url"] = url
+        captured["headers"] = headers
         captured["timeout"] = timeout
         return FakeResponse()
 
@@ -44,5 +45,6 @@ def test_fetch_sbazar_requests_search_url_with_timeout(monkeypatch):
     listings = fetch_sbazar("fenix 8")
 
     assert captured["url"] == "https://www.sbazar.cz/hledej/fenix%208"
+    assert captured["headers"] == HEADERS
     assert captured["timeout"] == 15
     assert len(listings) == 2
