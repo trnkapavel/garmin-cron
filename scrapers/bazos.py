@@ -22,7 +22,7 @@ def _extract_price(text):
 def _parse_entries(entries, source):
     listings = []
     for entry in entries:
-        price = _extract_price(entry.title) or _extract_price(entry.get("description", ""))
+        price = _extract_price(entry.title)
         if price is None:
             continue
         listings.append({

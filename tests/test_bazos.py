@@ -30,6 +30,18 @@ def test_parse_entries_extracts_listings_from_fixture():
     assert listings[0]["source"] == "bazos-mobil"
 
 
+def test_parse_entries_ignores_trailing_digits_in_description():
+    # Fixture's second item has no price in the title but its description
+    # ends in "Tel: 604123456" - a phone number that must not be
+    # misparsed as a price via a description fallback.
+    feed = feedparser.parse(str(FIXTURE))
+    listings = _parse_entries(feed.entries, "bazos-mobil")
+
+    urls = [listing["url"] for listing in listings]
+    assert "https://mobil.bazos.cz/inzerat/987654321/garmin-fenix-8-51mm-cena-dohodou.php" not in urls
+    assert 604123456 not in [listing["price_czk"] for listing in listings]
+
+
 def test_fetch_bazos_queries_working_endpoint(monkeypatch):
     fixture_content = FIXTURE.read_bytes()
     requested_urls = []
