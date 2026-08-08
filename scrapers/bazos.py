@@ -5,11 +5,10 @@ import feedparser
 import requests
 
 BAZOS_RSS_URLS = {
-    "bazos-mobil": "https://mobil.bazos.cz/rss.php?hledej={query}",
-    "bazos-sport": "https://sport.bazos.cz/rss.php?hledej={query}",
+    "bazos": "https://www.bazos.cz/rss.php?hledat={query}",
 }
 
-PRICE_RE = re.compile(r"(\d[\d\s]{2,})\s*Kč", re.IGNORECASE)
+PRICE_RE = re.compile(r":\s*(\d[\d\s]{2,})\s*$")
 
 
 def _extract_price(text):
