@@ -2,7 +2,7 @@ from pathlib import Path
 
 import feedparser
 
-from scrapers.bazos import _extract_price, _parse_entries
+from scrapers.bazos import _extract_price, _parse_entries, fetch_bazos
 
 FIXTURE = Path(__file__).parent / "fixtures" / "bazos_sample.xml"
 
@@ -28,3 +28,27 @@ def test_parse_entries_extracts_listings_from_fixture():
     assert listings[0]["price_czk"] == 18700
     assert listings[0]["url"] == "https://mobil.bazos.cz/inzerat/123456789/garmin-fenix-8-51mm.php"
     assert listings[0]["source"] == "bazos-mobil"
+
+
+def test_fetch_bazos_queries_both_sources_and_merges_results(monkeypatch):
+    fixture_content = FIXTURE.read_bytes()
+    requested_urls = []
+
+    class FakeResponse:
+        def __init__(self, content):
+            self.content = content
+
+    def fake_get(url, timeout=None):
+        requested_urls.append(url)
+        return FakeResponse(fixture_content)
+
+    monkeypatch.setattr("scrapers.bazos.requests.get", fake_get)
+
+    listings = fetch_bazos("fenix 8")
+
+    assert len(listings) == 2
+    assert {listing["source"] for listing in listings} == {"bazos-mobil", "bazos-sport"}
+    assert requested_urls == [
+        "https://mobil.bazos.cz/rss.php?hledej=fenix+8",
+        "https://sport.bazos.cz/rss.php?hledej=fenix+8",
+    ]

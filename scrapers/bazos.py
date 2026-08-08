@@ -2,6 +2,7 @@ import re
 from datetime import datetime, timezone
 
 import feedparser
+import requests
 
 BAZOS_RSS_URLS = {
     "bazos-mobil": "https://mobil.bazos.cz/rss.php?hledej={query}",
@@ -39,6 +40,7 @@ def fetch_bazos(query):
     listings = []
     for source, url_template in BAZOS_RSS_URLS.items():
         url = url_template.format(query=query.replace(" ", "+"))
-        feed = feedparser.parse(url)
+        response = requests.get(url, timeout=15)
+        feed = feedparser.parse(response.content)
         listings.extend(_parse_entries(feed.entries, source))
     return listings
