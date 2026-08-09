@@ -51,6 +51,7 @@ def test_main_appends_only_new_listings_with_discount(tmp_path, monkeypatch):
     )
     monkeypatch.setattr(main, "CSV_PATH", csv_file)
     monkeypatch.setattr(main, "CONFIG_PATH", config_file)
+    monkeypatch.setattr(main, "HTML_PATH", tmp_path / "index.html")
     monkeypatch.setattr(
         main,
         "fetch_bazos",
@@ -77,3 +78,20 @@ def test_main_appends_only_new_listings_with_discount(tmp_path, monkeypatch):
     with open(csv_file, encoding="utf-8", newline="") as f:
         rows = list(csv.DictReader(f))
     assert len(rows) == 1
+
+
+def test_generate_html_writes_clickable_links(tmp_path, monkeypatch):
+    csv_file = tmp_path / "listings.csv"
+    csv_file.write_text(
+        "url,title,price_czk,source,discount_pct,scraped_at\n"
+        'http://a,"Fenix 8 <great>",18700,bazos,28.0,2026-01-01T00:00:00+00:00\n',
+        encoding="utf-8",
+    )
+    html_file = tmp_path / "index.html"
+    monkeypatch.setattr(main, "CSV_PATH", csv_file)
+    monkeypatch.setattr(main, "HTML_PATH", html_file)
+
+    main.generate_html()
+
+    content = html_file.read_text(encoding="utf-8")
+    assert '<a href="http://a">Fenix 8 &lt;great&gt;</a>' in content
