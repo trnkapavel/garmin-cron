@@ -1,4 +1,4 @@
-name: Daily Garmin Fenix 8 scrape
+name: Daily Garmin Fenix 8 Scrape
 
 on:
   schedule:
