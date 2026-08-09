@@ -51,6 +51,9 @@ def test_fetch_bazos_queries_working_endpoint(monkeypatch):
         def __init__(self, content):
             self.content = content
 
+        def raise_for_status(self):
+            pass
+
     def fake_get(url, timeout=None):
         requested_urls.append(url)
         requested_timeouts.append(timeout)

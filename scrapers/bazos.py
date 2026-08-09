@@ -40,6 +40,7 @@ def fetch_bazos(query):
     for source, url_template in BAZOS_RSS_URLS.items():
         url = url_template.format(query=query.replace(" ", "+"))
         response = requests.get(url, timeout=15)
+        response.raise_for_status()
         feed = feedparser.parse(response.content)
         listings.extend(_parse_entries(feed.entries, source))
     return listings
